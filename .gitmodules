@@ -1,0 +1,6 @@
+[submodule "DevOpsTraining-frontend"]
+	path = DevOpsTraining-frontend
+	url = https://github.com/KajetanJanusz/DevOpsTraining-frontend.git
+[submodule "DevOpsTraining-backend"]
+	path = DevOpsTraining-backend
+	url = https://github.com/KajetanJanusz/DevOpsTraining-backend.git
