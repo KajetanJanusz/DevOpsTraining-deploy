@@ -1,0 +1,62 @@
+services:
+  backend:
+    container_name: backend
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile-backend
+    image: backend:prod
+    entrypoint: "./backend/docker_entrypoints/run_backend.sh"
+    env_file: ./env.backend
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      # - static-files:/app/static
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -H 'Authorization: ${HEALTH_TOKEN}' http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    container_name: frontend
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile-frontend
+    image: frontend:prod
+    env_file: 
+      - ./frontend.env
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+    - "3001:3000"
+    volumes:
+      - ./frontend:/app
+
+  db:
+    container_name: database
+    restart: always
+    image: postgres:14
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    env_file: 
+      - ./db.env
+    ports:
+      - "996:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  # static-files:
+  #   driver: local
+  postgres-data:
+    driver: local
